@@ -24,6 +24,7 @@
 //   );
 // }
 import React, {useState} from 'react';
+// import
 import {
   View,
   Text,
@@ -32,14 +33,40 @@ import {
   ScrollView,
   StatusBar,
   Image,
+  Pressable,
+  Switch,
+  Appearance,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Button,
+  Keyboard,
 } from 'react-native';
 import {data} from './mockData';
+import {HandThumbUpIcon} from 'react-native-heroicons/outline';
 const App = () => {
-  console.log(data);
+  const colorscheme = Appearance.getColorScheme();
+  const [isEnabled, setIsEnabled] = useState(colorscheme === 'light');
+  const [textHandler, setTextHandler] = React.useState('');
+  const toggleSwitch = () => setIsEnabled(prev => !prev);
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        {data?.map(el => {
+    <SafeAreaView
+      style={[
+        styles.container,
+        {backgroundColor: isEnabled ? 'white' : '#082116'},
+      ]}>
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss}>
+        <ScrollView style={styles.scrollView}>
+          <Switch
+            trackColor={{false: '#767577', true: '#0e402a'}}
+            thumbColor={isEnabled ? '#fafafa' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleSwitch}
+            value={isEnabled}
+          />
+
+          {/* {data?.map(el => {
           return (
             <View style={styles.poster}>
               <Image
@@ -55,12 +82,41 @@ const App = () => {
                 </Text>
               </View>
               <View style={styles.likeBtn}>
-                <Text style={styles.text}>Like</Text>
+                <Pressable
+                  onPress={() => {
+                    console.log('Press');
+                  }}>
+                  <HandThumbUpIcon color="white" />
+                </Pressable>
               </View>
             </View>
           );
-        })}
-        {/* <View style={styles.poster}>
+        })} */}
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            <View style={styles.inner}>
+              <Text style={styles.header}>Header</Text>
+              <TextInput placeholder="Username" style={styles.textInput} />
+              <View style={styles.btnContainer}>
+                <Button title="Submit" onPress={() => null} />
+              </View>
+            </View>
+          </KeyboardAvoidingView>
+          {/* <View>
+          <TextInput
+            style={{
+              height: 40,
+              margin: 12,
+              borderWidth: 1,
+              padding: 10,
+            }}
+            onChangeText={value => {
+              setTextHandler(value);
+            }}
+            keyboardType={'default'}
+          />
+        </View> */}
+          {/* <View style={styles.poster}>
           <Image
             style={styles.tinyLogo}
             source={{
@@ -77,12 +133,18 @@ const App = () => {
             <Text style={styles.text}>Like</Text>
           </View>
         </View> */}
-      </ScrollView>
+        </ScrollView>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   info: {
     flex: 4,
     flexDirection: 'column',
@@ -126,6 +188,25 @@ const styles = StyleSheet.create({
   },
   text: {
     color: 'white',
+  },
+  inner: {
+    padding: 24,
+    flex: 1,
+    justifyContent: 'space-around',
+  },
+  header: {
+    fontSize: 36,
+    marginBottom: 48,
+  },
+  textInput: {
+    height: 40,
+    borderColor: '#000000',
+    borderBottomWidth: 1,
+    marginBottom: 36,
+  },
+  btnContainer: {
+    backgroundColor: 'white',
+    marginTop: 12,
   },
 });
 
