@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
@@ -23,7 +24,7 @@
 //     </View>
 //   );
 // }
-import React, {useState} from 'react';
+import React, {useRef} from 'react';
 // import
 import {
   View,
@@ -32,114 +33,60 @@ import {
   SafeAreaView,
   ScrollView,
   StatusBar,
-  Image,
-  Pressable,
   Switch,
-  Appearance,
   TextInput,
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
   Button,
   Keyboard,
+  Animated,
+  Dimensions,
 } from 'react-native';
-import {data} from './mockData';
-import {HandThumbUpIcon} from 'react-native-heroicons/outline';
+import {sin, useAnimatedStyle, useSharedValue} from 'react-native-reanimated';
 const App = () => {
-  const colorscheme = Appearance.getColorScheme();
-  const [isEnabled, setIsEnabled] = useState(colorscheme === 'light');
-  const [textHandler, setTextHandler] = React.useState('');
-  const toggleSwitch = () => setIsEnabled(prev => !prev);
+  const windowWidth = Dimensions.get('window').width;
+  const windowHeight = Dimensions.get('window').height;
+  const transRef = useRef(new Animated.ValueXY()).current;
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        {backgroundColor: isEnabled ? 'white' : '#082116'},
-      ]}>
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss}>
-        <ScrollView style={styles.scrollView}>
-          <Switch
-            trackColor={{false: '#767577', true: '#0e402a'}}
-            thumbColor={isEnabled ? '#fafafa' : '#f4f3f4'}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleSwitch}
-            value={isEnabled}
-          />
-
-          {/* {data?.map(el => {
-          return (
-            <View style={styles.poster}>
-              <Image
-                style={styles.tinyLogo}
-                source={{
-                  uri: el.img,
-                }}
-              />
-              <View style={styles.info}>
-                <Text style={styles.text}>{el.name}</Text>
-                <Text>
-                  <Text style={styles.text}>{el.lengthOfMovie}</Text>
-                </Text>
-              </View>
-              <View style={styles.likeBtn}>
-                <Pressable
-                  onPress={() => {
-                    console.log('Press');
-                  }}>
-                  <HandThumbUpIcon color="white" />
-                </Pressable>
-              </View>
-            </View>
-          );
-        })} */}
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-            <View style={styles.inner}>
-              <Text style={styles.header}>Header</Text>
-              <TextInput placeholder="Username" style={styles.textInput} />
-              <View style={styles.btnContainer}>
-                <Button title="Submit" onPress={() => null} />
-              </View>
-            </View>
-          </KeyboardAvoidingView>
-          {/* <View>
-          <TextInput
-            style={{
-              height: 40,
-              margin: 12,
-              borderWidth: 1,
-              padding: 10,
-            }}
-            onChangeText={value => {
-              setTextHandler(value);
-            }}
-            keyboardType={'default'}
-          />
-        </View> */}
-          {/* <View style={styles.poster}>
-          <Image
-            style={styles.tinyLogo}
-            source={{
-              uri: 'https://reactnative.dev/img/tiny_logo.png',
-            }}
-          />
-          <View style={styles.info}>
-            <Text style={styles.text}>Movie name</Text>
-            <Text>
-              <Text style={styles.text}>8.3</Text>
-            </Text>
-          </View>
-          <View style={styles.likeBtn}>
-            <Text style={styles.text}>Like</Text>
-          </View>
-        </View> */}
-        </ScrollView>
-      </TouchableWithoutFeedback>
+    <SafeAreaView>
+      <Animated.View
+        style={[
+          styles.box,
+          {
+            transform: [
+              {
+                translateX: transRef.x.interpolate({
+                  inputRange: [0, 0.2, 0.4, 0.6, 0.8, 1, 1.2],
+                  outputRange: [0, 100, 0, 100, 0, 100, 0],
+                }),
+              },
+              {
+                translateY: transRef.y,
+              },
+            ],
+          },
+        ]}
+      />
+      <Button
+        title="move"
+        onPress={() => {
+          Animated.timing(transRef, {
+            toValue: {x: 1, y: 500},
+            duration: 2000,
+            useNativeDriver: true,
+          }).start();
+        }}
+      />
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
+  box: {
+    width: 100,
+    height: 100,
+    backgroundColor: '#0ff',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
