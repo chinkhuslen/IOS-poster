@@ -1,31 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-// import React from 'react';
-// import {View, StyleSheet} from 'react-native';
-// function App(): JSX.Element {
-//   return (
-//     <View style={{height: '100%'}}>
-//       <View style={{height: 100, backgroundColor: 'yellow'}} />
-//       <View style={[styles.flex1, styles.flexR]}>
-//         <View style={[styles.flex1, styles.bgColorBlue]} />
-//         <View style={styles.flex3}>
-//           <View style={{height: 120, backgroundColor: 'gray'}} />
-//           <View style={{backgroundColor: 'green', flex: 1}} />
-//           <View style={{height: 150}} />
-//         </View>
-//       </View>
-//       <View style={{height: 100, backgroundColor: 'red'}}></View>
-//     </View>
-//   );
-// }
-import React, {useRef} from 'react';
-// import
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -42,46 +16,207 @@ import {
   Keyboard,
   Animated,
   Dimensions,
+  Image,
+  Easing,
 } from 'react-native';
-import {sin, useAnimatedStyle, useSharedValue} from 'react-native-reanimated';
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
+
 const App = () => {
-  const windowWidth = Dimensions.get('window').width;
-  const windowHeight = Dimensions.get('window').height;
-  const transRef = useRef(new Animated.ValueXY()).current;
+  const transRef1 = useRef(new Animated.ValueXY()).current;
+  const transRef2 = useRef(new Animated.ValueXY()).current;
+  const transRef3 = useRef(new Animated.ValueXY()).current;
+  const OpRef1 = useRef(new Animated.Value(0)).current;
+  const OpRef2 = useRef(new Animated.Value(0)).current;
+  const rotateRef = useRef(new Animated.Value(0)).current;
+  const [isNight, setIsNight] = useState(false);
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(rotateRef, {
+        toValue: 1,
+        // duration: 2000,dakr
+        // easing: Easing.ease,
+        useNativeDriver: true,
+      }),
+      Animated.timing(transRef1, {
+        toValue: isNight ? {x: 1, y: 0} : {x: -1, y: 700},
+        duration: 3000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(OpRef1, {
+        toValue: isNight ? 0 : 1,
+        duration: 2000,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }),
+      Animated.timing(transRef2, {
+        toValue: isNight ? {x: 1, y: -700} : {x: -1, y: 0},
+        duration: 3000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(OpRef2, {
+        toValue: isNight ? 1 : 0,
+        duration: 2000,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }),
+      Animated.timing(transRef3, {
+        toValue: isNight ? {x: 1, y: 0} : {x: 10, y: -700},
+        duration: 3000,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [OpRef1, OpRef2, rotateRef, isNight, transRef1, transRef2, transRef3]);
   return (
-    <SafeAreaView>
-      <Animated.View
+    <View style={[styles.flex, styles.flexRow]}>
+      <Switch
+        trackColor={{false: '#767577', true: '#0e402a'}}
+        thumbColor={isNight ? '#fafafa' : '#f4f3f4'}
+        ios_backgroundColor="#3e3e3e"
+        onValueChange={() => setIsNight(!isNight)}
+        value={isNight}
+        style={styles.switch}
+      />
+      <Animated.Image
+        style={[styles.day, {opacity: OpRef1}]}
+        source={require('./day.png')}
+      />
+      <Animated.Image
         style={[
-          styles.box,
+          styles.sun,
+          {opacity: OpRef1},
           {
             transform: [
               {
-                translateX: transRef.x.interpolate({
-                  inputRange: [0, 0.2, 0.4, 0.6, 0.8, 1, 1.2],
-                  outputRange: [0, 100, 0, 100, 0, 100, 0],
+                translateX: transRef2.x.interpolate({
+                  inputRange: [0, 0.2, 0.4, 0.6, 0.8, 1],
+                  outputRange: [10, 20, 30, 40, 50, 60],
                 }),
               },
               {
-                translateY: transRef.y,
+                translateY: transRef2.y,
               },
             ],
           },
         ]}
+        source={require('./sun.png')}
       />
-      <Button
-        title="move"
-        onPress={() => {
-          Animated.timing(transRef, {
-            toValue: {x: 1, y: 500},
-            duration: 2000,
-            useNativeDriver: true,
-          }).start();
-        }}
+      <Animated.Image
+        style={[styles.night, {opacity: OpRef2}]}
+        source={require('./night.png')}
       />
-    </SafeAreaView>
+      <Animated.Image
+        style={[
+          styles.moon,
+          {opacity: OpRef2},
+          {
+            transform: [
+              {
+                translateX: transRef1.x.interpolate({
+                  inputRange: [0, 0.2, 0.4, 0.6, 0.8, 1],
+                  outputRange: [10, 20, 30, 40, 50, 60],
+                }),
+              },
+              {
+                translateY: transRef1.y,
+              },
+            ],
+          },
+        ]}
+        source={require('./moon.png')}
+      />
+      <Animated.Image
+        style={[
+          styles.meteor,
+          {opacity: OpRef2},
+          {
+            transform: [
+              // {
+              //   translateX: transRef3.x.interpolate({
+              //     inputRange: [0, 0.2, 0.4, 0.6, 0.8, 1],
+              //     outputRange: [10, 20, 30, 40, 50, 60],
+              //   }),
+              // },
+              // {
+              //   translateY: transRef3.y,
+              // },
+              {
+                rotate: isNight
+                  ? rotateRef.interpolate({
+                      inputRange: [0, 0.2, 0.4, 0.6, 0.8, 1],
+                      outputRange: [
+                        '0deg',
+                        '-10deg',
+                        '-20deg',
+                        '-30deg',
+                        '-40deg',
+                        '-50deg',
+                      ],
+                    })
+                  : rotateRef.interpolate({
+                      inputRange: [0, 0.2, 0.4, 0.6, 0.8, 1],
+                      outputRange: [
+                        '-50deg',
+                        '-40deg',
+                        '-30deg',
+                        '-20deg',
+                        '-10deg',
+                        '0deg',
+                      ],
+                    }),
+              },
+            ],
+          },
+        ]}
+        source={require('./tail-wind.png')}
+      />
+    </View>
   );
 };
+
 const styles = StyleSheet.create({
+  sun: {
+    position: 'absolute',
+    top: 400,
+    left: 100,
+    width: 100,
+    height: 100,
+  },
+  meteor: {
+    position: 'absolute',
+    top: 330,
+    left: 0,
+    width: 250,
+    height: 250,
+    transform: [{rotate: '30deg'}],
+  },
+  moon: {
+    position: 'absolute',
+    top: 300,
+    left: 50,
+    width: 60,
+    height: 72,
+  },
+  flex: {
+    display: 'flex',
+  },
+  flexRow: {flexDirection: 'row'},
+  day: {
+    position: 'absolute',
+    width: '100%',
+    height: windowHeight,
+  },
+  night: {
+    width: '100%',
+    // transform: [{translateX: windowWidth}],
+    height: windowHeight,
+  },
+  switch: {
+    position: 'absolute',
+    top: 50,
+    right: 1,
+    zIndex: 1,
+  },
   box: {
     width: 100,
     height: 100,
@@ -91,6 +226,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingTop: StatusBar.currentHeight,
+    backgroundColor: '#082116',
+    color: 'white',
   },
   info: {
     flex: 4,
@@ -103,12 +241,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     flexDirection: 'row',
-    color: 'white',
-  },
-  container: {
-    flex: 1,
-    paddingTop: StatusBar.currentHeight,
-    backgroundColor: '#082116',
     color: 'white',
   },
   scrollView: {
@@ -156,28 +288,4 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
 });
-
-// const styles = StyleSheet.create({
-//   flex1: {
-//     flex: 1,
-//   },
-//   flex3: {
-//     flex: 3,
-//   },
-//   flexR: {
-//     flexDirection: 'row',
-//   },
-//   bgColorBlue: {
-//     backgroundColor: 'blue',
-//   },
-//   bgColorPrim: {
-//     backgroundColor: 'rgba(255, 255, 255,0.1)',
-//   },
-//   poster: {
-//     width: '80%',
-//     height: 50,
-//     backgroundColor: 'rgba(255, 255, 255, 0.5',
-//   },
-// });
-
 export default App;
